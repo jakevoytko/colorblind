@@ -17,6 +17,12 @@ describe('protanope', function() {
       assert.deepEqual(white, value);
     });
 
+    it('black should roundtrip perfectly', function() {
+      var black = new colors.Rgb(0, 0, 0);
+      var value = protanope.convertToProtanope(black);
+      assert.deepEqual(black, value);
+    });
+
     it('check a point that forms a flat confusion line', function() {
       // The line has no slope from the confusion point so the math is simpler.
       var rgb = colors.xyzToRgb(colors.xyyToXyz(new colors.Xyy(.3, .253, 0.5)));
