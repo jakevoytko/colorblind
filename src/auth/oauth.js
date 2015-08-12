@@ -4,6 +4,7 @@
 
 var assert = require('assert');
 var crypto = require('crypto');
+var urls = require('../net/urls.js');
 
 
 /** 
@@ -39,7 +40,7 @@ var encodeKeyValueFragments = function(
   map: { [key: string]: string }, join: string): string {
 
   var fragments = Object.keys(map).map(function(cur) {
-    return customUriEncode(cur) + '="' + customUriEncode(map[cur]) + '"';
+    return urls.customUriEncode(cur) + '="' + urls.customUriEncode(map[cur]) + '"';
   });
   fragments.sort();
   return fragments.join(join);
@@ -87,15 +88,6 @@ var generateNonce = function(): string {
 };
 
 
-var encodeURIRegex = /!/g;
-/**
- * Performs the same job as encodeURIComponent, and also escapes exclamation points.
- */
-var customUriEncode = function(str: string): string {
-  return encodeURIComponent(str).replace(encodeURIRegex, '%21');
-};
-
-
 var oauthSign = function(
   method: string, 
   baseUrl: string, 
@@ -106,8 +98,8 @@ var oauthSign = function(
   var percentEncodedParams = {};
 
   for (var key in allParams) {
-    var percentEncodedKey = customUriEncode(key);
-    var percentEncodedValue = customUriEncode(allParams[key]);
+    var percentEncodedKey = urls.customUriEncode(key);
+    var percentEncodedValue = urls.customUriEncode(allParams[key]);
     percentEncodedKeys.push(percentEncodedKey);
     percentEncodedParams[percentEncodedKey] = percentEncodedValue;
   }
@@ -122,12 +114,12 @@ var oauthSign = function(
 
   var parameterString = parameterStrings.join('&');
 
-  var baseString = method.toUpperCase() + '&' + customUriEncode(baseUrl) + '&'
-      + customUriEncode(parameterString);
+  var baseString = method.toUpperCase() + '&' + urls.customUriEncode(baseUrl) + '&'
+      + urls.customUriEncode(parameterString);
 
   // If the token secret is missing, the & is kept but the token secret is left off.
-  var signingKey = customUriEncode(keyData.consumerSecret) + '&' +
-        (keyData.tokenSecret ? customUriEncode(keyData.tokenSecret) : '');
+  var signingKey = urls.customUriEncode(keyData.consumerSecret) + '&' +
+        (keyData.tokenSecret ? urls.customUriEncode(keyData.tokenSecret) : '');
 
   var hmac = crypto.createHmac('sha1', signingKey);
   hmac.update(baseString);
