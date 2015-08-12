@@ -1,0 +1,17 @@
+/**
+ * Contains the global application configuration for the Twitter bot.
+ */
+
+var oauth = require('./auth/oauth.js');
+
+
+/** The Twitter handle for the bot. */
+exports.username = 'CHANGE ME. A Twitter username, not this string.';
+
+
+/** The OAuth token data for the Twitter handle above. */
+exports.oauthData = new oauth.KeyData(
+  'the consumer key for your application' /* consumerKey */,
+  'the consumer secret for your application' /* consumerSecret */,
+  'the token for your user session' /* token */,
+  'the token secret for your user session' /* tokenSecret */);
