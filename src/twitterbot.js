@@ -11,7 +11,6 @@
  * The basic pipeline is.. 
  * runUserStream | chunkReaderCallback | downloadImage | processImage | 
  *     uploadImage | sendTweetReplyWithMedia
- * TODO(jake): Look into ways to manage the pipeline; promises, async, etc.
  */
 
 var appUtil = require('./apputil.js');
@@ -64,7 +63,6 @@ var chunkReaderCallback = function(buffer: Buffer) {
   console.log('Received complete chunk.');
   var tweet = JSON.parse(buffer.toString('utf8'));
 
-  // TODO(jake): Prevent deleted Tweets from propagating through the system.
   if (!twitterJson.isTweet(tweet)) {
     console.log('Received non-tweet message.');
     return;
@@ -115,7 +113,6 @@ var downloadImage = function(args: Object): void {
       return;
     }
     responses.collectBuffer(response, function(data) {
-      // TODO(jake): Move to #processImage.
       lwip.open(data, url.substr(url.lastIndexOf('.') + 1).toLowerCase(), 
         function(err, image) {
           if (err) {

@@ -171,7 +171,6 @@ class HeaderBuilder {
     var headerTimestamp = Math.round(timestamp).toString();
     var headerNonce = nonce ? nonce : generateNonce();
     
-    // TODO(jake): How short is too short?
     assert(headerNonce.length > 0, 'Nonce is not long enough.');
 
     var oauthHeaders = {};

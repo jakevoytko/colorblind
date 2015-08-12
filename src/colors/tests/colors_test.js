@@ -1,7 +1,6 @@
 var assert = require('assert');
 var colors = require('../colors.js');
 
-// TODO(jake): Tests for conversion functions.
 describe('colors', function() {
   describe('colors.Xyz()', function() {
     it('should succeed when Y is in bounds', function() {

@@ -1,8 +1,6 @@
 /**
  * Contains a node.js module defining helpers for dealing with the Twitter web
  * API.
- * TODO(jake): Unify how these calls handle requests, including request.end().
- * TODO(jake): Test this deterministically. And at all.
  */
 
 var crypto = require('crypto');
@@ -21,7 +19,6 @@ var NUMBER_REGEX = /[0-9]+/g;
  * data will be prepended with an ASCII representation of the length of bytes to
  * be read. This reads the byte string, as well as all of the bytes from the
  * stream, and passes completed request buffers to the given callback.
- * TODO(jake): Yuck. Too much intertangled state. How to refactor? Functional?
  */
 class DelimitedChunkAggregator {
   lengthToRead: number;
@@ -47,8 +44,6 @@ class DelimitedChunkAggregator {
       }
       var matches = chunkString.match(NUMBER_REGEX);
       if (!matches || matches.length < 2) {
-        // TODO(jake): Errors indicate misalignment. Should be fatal to the
-        // connection, although it seems likely this will recover.
         console.error('Received chunk with no length information.', chunkString);
         return;
       }

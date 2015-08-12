@@ -8,7 +8,6 @@
  * An RGB color. 0 is the absence of color and 255 is the primary for this
  * particular channel. Unintuitively, the channels may be negative and greater
  * than 255, they just can't be displayed on monitors.
- * TODO(jake): Make separate classes for display sRGB (0-255) and sRGB (0-1).
  */
 class Rgb {
   R: number;
@@ -70,7 +69,6 @@ exports.XYY_WHITE_D65 = XYY_WHITE_D65;
 
 /** 
  * Converts an RGB color into an equivalent color in the XYZ color space. 
- * TODO(jake): Gamma correct.
  */
 var rgbToXyz = function(rgb: Rgb): Xyz {
   var r = rgb.R / 255;

@@ -1,6 +1,5 @@
 /**
  * Contains a node.js module with utility methods for dealing with responses.
- * TODO(jake): Test.
  */
 
 var http = require('http');

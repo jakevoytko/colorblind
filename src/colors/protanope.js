@@ -140,7 +140,6 @@ var clamp = function(min: number, x: number, max: number): number {
  * colorspace. If this color falls outside the sRGB, the intersection of the
  * edge of the sRGB spectrum and the confusion line will be used. This was
  * implemented from http://www.cs.ucf.edu/~yhu/grapp2006.pdf
- * TODO(jake): Generalize to other dichromats.
  */
 var convertToProtanope = function(rgb: colors.Rgb): colors.Rgb {
   assertDisplayRgb(rgb);

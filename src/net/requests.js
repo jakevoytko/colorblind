@@ -6,11 +6,7 @@ var assert = require('assert');
 
 
 var quoteRegex = /"/g;
-/** 
- * Makes a single-part request body.
- * TODO(jake): Validate the boundary, check that it doesn't occur elsewhere in 
- * the request.
- */
+/** Makes a single-part request body. */
 var makeRequestBody = function(
   server: string, 
   path: string, 

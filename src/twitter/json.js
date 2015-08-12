@@ -1,7 +1,6 @@
 /**
  * Contains a node.js module with utilities for handling Twitter-specific JSON
  * response objects.
- * TODO(jake): Validate that the returned types are correct.
  */
 
 var assert = require('assert');
