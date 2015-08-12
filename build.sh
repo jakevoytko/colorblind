@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# If the config hasn't been copied to its final location, do that.
+if [[ ! -e ./src/config.js ]]; then
+  cp ./src/config.js{.template,}
+fi
+
 # Typechecks and tests the bot.
 
 (cd src; flow check --all)
