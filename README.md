@@ -24,7 +24,7 @@ Accordingly, don't use this as a template for other Twitterbots. At the very
 least, you should swap out the OAuth functions with an OAuth library, since I
 rolled these by hand to learn how OAuth works.
 
-# External dependencies # 
+# External dependencies #
 
 - [Facebook Flow](http://flowtype.org/) for static type checking.
 - [LWIP](https://github.com/EyalAr/lwip) to handle image encoding/decoding.
