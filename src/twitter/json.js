@@ -14,7 +14,7 @@ var util = require('util');
  * assumes that anything with a top-level ID field is fine.
  */
 var isTweet = function(obj: Object): bool {
-  return 'id_str' in obj && !!obj.id_str;
+  return 'id_str' in obj && !!obj.id_str && (typeof obj.id_str == 'string');
 };
 exports.isTweet = isTweet;
 
@@ -23,7 +23,7 @@ exports.isTweet = isTweet;
  * Returns the tweet ID as a string, or null if none is present.
  */
 var getTweetId = function(obj: Object): ?string {
-  return obj.id_str || null;
+  return isTweet(obj) ? obj.id_str : null;
 };
 exports.getTweetId = getTweetId;
 
@@ -33,10 +33,13 @@ exports.getTweetId = getTweetId;
  * present.
  */
 var getTweetScreenName = function(obj: Object): ?string {
-  if (!('user' in obj)) {
+  if (!('user' in obj) || !(obj.user instanceof Object)) {
     return null;
   }
 
+  if (!obj.user.screen_name || (typeof obj.user.screen_name != "string")) {
+    return null;
+  }
   return obj.user.screen_name || null;
 };
 exports.getTweetScreenName = getTweetScreenName;
@@ -57,7 +60,8 @@ var getTweetPhotoUrls = function(obj: Object): Array<string> {
   var media = extendedEntities.media || [];
   assert(media instanceof Array);
   media.forEach(function(currentValue) {
-    if (currentValue.type == 'photo') {
+    if (currentValue.type == 'photo' && !!currentValue.media_url_https &&
+        (typeof currentValue.media_url_https == "string")) {
       urls.push(currentValue.media_url_https);
     }
   });

@@ -4,15 +4,19 @@ var json = require('../json.js');
 describe('json', function() {
   describe('isTweet()', function() {
     it('should not choke on an empty object', function() {
-      assert.ok(!json.isTweet({}));
+      assert(!json.isTweet({}));
     });
 
     it('should return false for an empty id string', function() {
-      assert.ok(!json.isTweet({id_str: ''}));
+      assert(!json.isTweet({id_str: ''}));
     });
 
     it('should return true for a present id string', function() {
-      assert.ok(json.isTweet({id_str: '8675309'}));
+      assert(json.isTweet({id_str: '8675309'}));
+    });
+
+    it('should fail if id_str is not a string', function() {
+      assert(!json.isTweet({id_str: {iPity: 'the fool'}}));
     });
   });
 
@@ -23,6 +27,10 @@ describe('json', function() {
 
     it('should return null for an empty id string', function() {
       assert.equal(null, json.getTweetId({id_str: ''}));
+    });
+
+    it('should return null for a wrongly-typed id string', function() {
+      assert.equal(null, json.getTweetId({id_str: {iPity: 'the fool'}}));
     });
 
     it('should return true for a present id string', function() {
@@ -41,6 +49,11 @@ describe('json', function() {
 
     it('should return null for a user object with an empty name', function() {
       assert.equal(null, json.getTweetScreenName({user: {screen_name: ''}}));
+    });
+
+    it('should return null for a wrongly-typed screen name', function() {
+      assert.equal(
+        null, json.getTweetScreenName({user: {screen_name: {iPity: 'the fool'}}}));
     });
 
     it('should return the name if it is there', function() {
@@ -76,16 +89,48 @@ describe('json', function() {
         }));
     });
 
-    it('should return the photo id if present', function() {
+    it('should return [] if media type is not a string', function() {
       assert.deepEqual(
-        ['https://example.com/photo.jpg'], json.getTweetPhotoUrls({
+        [], json.getTweetPhotoUrls({
+          extended_entities: {
+            media: [
+              {
+                type: {iPity: 'the fool'},
+                media_url_https: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+              }
+            ]
+          }
+        }));
+    });
+
+    it('should return [] if url is non-string', function() {
+      assert.deepEqual(
+        [], json.getTweetPhotoUrls({
           extended_entities: {
             media: [
               {
                 type: 'photo', 
-                media_url_https: 'https://example.com/photo.jpg'
+                media_url_https: {iPity: 'the fool'}
               }
             ]
+          }
+        }));
+    });
+
+    it('should return [] if media_url_https is missing', function() {
+      assert.deepEqual(
+        [], json.getTweetPhotoUrls({
+          extended_entities: {
+            media: [{type: 'photo'}]
+          }
+        }));
+    });
+
+    it('should return [] if type missing', function() {
+      assert.deepEqual(
+        [], json.getTweetPhotoUrls({
+          extended_entities: {
+            media: [{media_url_https: 'https://example.com/photo.jpg'}]
           }
         }));
     });
