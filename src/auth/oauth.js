@@ -73,18 +73,17 @@ var nonceRegex = /\w+/g;
  * are we to object?
  */
 var generateNonce = function(): string {
-  var nonceBytes;
-  try {
-    nonceBytes = crypto.randomBytes(32);
-  } catch(e) {
-    console.error('Error generating random bytes', e);
-    throw e;
-  }
-  if (!nonceBytes) { // Added for type checker.
-    throw Error('Nonce bytes not produced.');
-  }
+  // Uses pseudorandom since this only needs unpredictability, not
+  // cryptographically strong numbers.
+  // $FlowIssue: pseudoRandomBytes requires callback in Flow externs.
+  var nonceBytes = crypto.pseudoRandomBytes(32);
   var nonceString = nonceBytes.toString('base64');
-  return nonceString.match(nonceRegex).join('');
+  var strippedNonceString = nonceString.match(nonceRegex).join('');
+
+  // Chosen so that there's enough data remaining that it's unlikely there's a
+  // collision.
+  assert(strippedNonceString.length >= 8);
+  return strippedNonceString;
 };
 
 
@@ -171,8 +170,6 @@ class HeaderBuilder {
     var headerTimestamp = Math.round(timestamp).toString();
     var headerNonce = nonce ? nonce : generateNonce();
     
-    assert(headerNonce.length > 0, 'Nonce is not long enough.');
-
     var oauthHeaders = {};
     if (this.keyData.token) {
       oauthHeaders['oauth_token'] = this.keyData.token;
