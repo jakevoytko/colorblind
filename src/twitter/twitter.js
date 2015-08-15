@@ -13,7 +13,7 @@ var urls = require('../net/urls.js');
 
 
 // Matches numbers at the beginning of the input.
-var NUMBER_REGEX = /^\s*([0-9]+)/g;
+var NUMBER_REGEX = /^\s*(\d+)/;
 /**
  * A hanging GET to the Twitter API may contain length-delimited chunks. IE the
  * data will be prepended with an ASCII representation of the length of bytes to
@@ -24,9 +24,9 @@ class DelimitedChunkAggregator {
   lengthToRead: number;
   chunkData: Array<Buffer>;
   lengthRead: number;
-  callback: (x: Buffer) => void;
+  callback: (err: ?Error, x: ?Buffer) => void;
 
-  constructor(callback: (x: Buffer) => void) {
+  constructor(callback: (err: ?Error, x: ?Buffer) => void) {
     this.lengthToRead = -1;
     this.chunkData = [];
     this.lengthRead = 0;
@@ -44,14 +44,19 @@ class DelimitedChunkAggregator {
       }
       var matches = NUMBER_REGEX.exec(chunkString);
       if (!matches || matches.length < 2) {
-        console.error('Received chunk with no length information', chunkString);
-        return;
+        console.log(matches);
+        this.reset_();
+        return this.callback(new Error(
+          'Received chunk with no length information: ' + chunkString), 
+          null);
       }
       
       var lengthToRead = parseInt(matches[1]);
       if (isNaN(lengthToRead) || lengthToRead <= 0) {
-        console.error('Received chunk with unusable length', chunkString);
-        return;
+        this.reset_();
+        return this.callback(new Error(
+          'Received chunk with unusable length: ' + chunkString),
+          null);
       }
       this.lengthToRead = lengthToRead;
       chunkString = chunkString.substr(matches[0].length);
@@ -75,16 +80,20 @@ class DelimitedChunkAggregator {
       remainder = finalBuffer.slice(this.lengthToRead);
     }
 
-    this.callback(finalBuffer);
-
-    this.lengthToRead = -1;
-    this.chunkData = [];
-    this.lengthRead = 0;
+    this.callback(null, finalBuffer);
+    this.reset_();
     
     // If there is a remainder, recurse to start all over.
     if (remainder) {
       this.add(remainder);
     }
+  }
+
+  /** Internal only. Resets the internal state. */
+  reset_(): void {
+    this.lengthToRead = -1;
+    this.chunkData = [];
+    this.lengthRead = 0;
   }
 }
 exports.DelimitedChunkAggregator = DelimitedChunkAggregator;

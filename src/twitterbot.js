@@ -59,7 +59,14 @@ var runUserStream = function(): void {
  * first image URL it finds in the Tweet that is a supported format, and process
  * that image.
  */
-var chunkReaderCallback = function(buffer: Buffer) {
+var chunkReaderCallback = function(err: ?Error, buffer: ?Buffer) {
+  if (err) {
+    console.error('Received bad chunk data. Crashing.');
+    throw err;
+  }
+  if (!buffer) {
+    throw Error('Expected non-null buffer for chunk reader callback.');
+  }
   console.log('Received complete chunk.');
   var tweet = JSON.parse(buffer.toString('utf8'));
 
