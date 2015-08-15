@@ -13,7 +13,7 @@ var urls = require('../net/urls.js');
 
 
 // Matches numbers at the beginning of the input.
-var NUMBER_REGEX = /[0-9]+/g;
+var NUMBER_REGEX = /^\s*([0-9]+)/g;
 /**
  * A hanging GET to the Twitter API may contain length-delimited chunks. IE the
  * data will be prepended with an ASCII representation of the length of bytes to
@@ -42,13 +42,13 @@ class DelimitedChunkAggregator {
       if (chunkString.trim().length == 0) {
         return;
       }
-      var matches = chunkString.match(NUMBER_REGEX);
+      var matches = NUMBER_REGEX.exec(chunkString);
       if (!matches || matches.length < 2) {
-        console.error('Received chunk with no length information.', chunkString);
+        console.error('Received chunk with no length information', chunkString);
         return;
       }
       
-      var lengthToRead = parseInt(matches[0]);
+      var lengthToRead = parseInt(matches[1]);
       if (isNaN(lengthToRead) || lengthToRead <= 0) {
         console.error('Received chunk with unusable length', chunkString);
         return;
