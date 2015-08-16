@@ -70,7 +70,10 @@ var XYY_WHITE_D65 = new Xyy(0.31273126898108394, 0.3290328736744088, 1);
 exports.XYY_WHITE_D65 = XYY_WHITE_D65;
 
 
-/** Gamma-corrects a sRGB intensity. Taken from w3.org. */
+/**
+ * Gamma-corrects a sRGB intensity. Taken from 
+ * http://www.w3.org/Graphics/Color/srgb 
+ */
 var srgbToXyzGamma = function(intensity: number): number {
   assert(intensity >= 0);
   assert(intensity <= 1);
@@ -101,7 +104,10 @@ var rgbToXyz = function(rgb: Rgb): Xyz {
 exports.rgbToXyz = rgbToXyz;
 
 
-/** Gamma-corrects an XYZ intensity for sRGB. Taken from w3.org. */
+/** 
+ * Gamma-corrects an RGB value that's been converted from XYZ
+ * intensity. Inferred from http://www.w3.org/Graphics/Color/srgb
+ */
 var xyzToSrgbGamma = function(intensity: number): number {
   if (intensity <= 0.0031308) {
     return intensity * 12.92;
