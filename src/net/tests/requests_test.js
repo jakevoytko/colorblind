@@ -26,6 +26,18 @@ describe('requests', function() {
 
       assert.equal(expected, callMakeRequestBody('media', 'filename.txt'));
     });
+
+    it('should throw when the request body contains the boundary', function() {
+      assert.throws(function() {
+        return requests.makeRequestBody(
+          'api.api.api',
+          '/api/upload.json',
+          new Buffer('bound-ree').toString('base64'),
+          'media',
+          'filename.txt',
+          new Buffer('bound-ree'));
+      });
+    });
   });
 });
 
