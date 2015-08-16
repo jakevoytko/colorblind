@@ -4,6 +4,9 @@
  * some conversion functions.
  */
 
+var assert = require('assert');
+
+
 /**
  * An RGB color. 0 is the absence of color and 255 is the primary for this
  * particular channel. Unintuitively, the channels may be negative and greater
@@ -67,13 +70,27 @@ var XYY_WHITE_D65 = new Xyy(0.31273126898108394, 0.3290328736744088, 1);
 exports.XYY_WHITE_D65 = XYY_WHITE_D65;
 
 
+/** Gamma-corrects a sRGB intensity. Taken from w3.org. */
+var srgbToXyzGamma = function(intensity: number): number {
+  assert(intensity >= 0);
+  assert(intensity <= 1);
+
+  if (intensity < 0.04045) {
+    return intensity / 12.92;
+  }
+
+  var alpha = .055;
+  return Math.pow((intensity + alpha) / (1 + alpha), 2.4);
+};
+
+
 /** 
  * Converts an RGB color into an equivalent color in the XYZ color space. 
  */
 var rgbToXyz = function(rgb: Rgb): Xyz {
-  var r = rgb.R / 255;
-  var g = rgb.G / 255;
-  var b = rgb.B / 255;
+  var r = srgbToXyzGamma(rgb.R / 255);
+  var g = srgbToXyzGamma(rgb.G / 255);
+  var b = srgbToXyzGamma(rgb.B / 255);
 
   var X = r * 0.412453 + g * 0.357580 + b * 0.180423;
   var Y = r * 0.212671 + g * 0.715160 + b * 0.072169;
@@ -84,13 +101,28 @@ var rgbToXyz = function(rgb: Rgb): Xyz {
 exports.rgbToXyz = rgbToXyz;
 
 
+/** Gamma-corrects an XYZ intensity for sRGB. Taken from w3.org. */
+var xyzToSrgbGamma = function(intensity: number): number {
+  if (intensity <= 0.0031308) {
+    return intensity * 12.92;
+  }
+
+  var alpha = .055;
+  return (1 + alpha) * Math.pow(intensity, 1 / 2.4) - alpha;
+};
+
+
 /** Converts an XYZ color into an equivalent RGB color. */
 var xyzToRgb = function(xyz: Xyz): Rgb {
   var newR = xyz.X * 3.240479 - xyz.Y * 1.537150 - xyz.Z * 0.498535;
   var newG = xyz.X * -0.969256 + xyz.Y * 1.875992 + xyz.Z * 0.041556;
   var newB = xyz.X * 0.055648 - xyz.Y * 0.204043 + xyz.Z * 1.057311;
 
-  return new Rgb(255 * newR, 255 * newG, 255 * newB);
+  var finalR = xyzToSrgbGamma(newR);
+  var finalG = xyzToSrgbGamma(newG);
+  var finalB = xyzToSrgbGamma(newB);
+
+  return new Rgb(255 * finalR, 255 * finalG, 255 * finalB);
 };
 exports.xyzToRgb = xyzToRgb;
 
