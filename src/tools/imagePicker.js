@@ -33,7 +33,7 @@ var getFileFromArgs = function(argv: Array<string>): ?string {
 };
 
 
-var JPG_REGEX = /^[^.,]+\.jpg$/g;
+var JPG_REGEX = /^[^.]+\.jpg$/g;
 /** 
  * Validates that the file arg passed to the program is real, and likely a
  * jpeg. Returns the arg if it is real, otherwise null.
@@ -90,9 +90,8 @@ var outputDifferenceScore = function(
 
   assert(!isNaN(differenceScore));
   assert(differenceScore >= 0);
-
   fs.writeFileSync(
-    sourceFilename + '.score.tmp', differenceScore + ',' + sourceFilename);
+    sourceFilename + '.score.tmp', differenceScore + ',"' + sourceFilename + '"');
   fs.renameSync(sourceFilename + '.score.tmp', sourceFilename + '.score');
 };
 
@@ -112,7 +111,7 @@ var calculateDistance = function(a: colors.Xyz, b: colors.Xyz): number {
 var main = function(): void {
   var image = validateFile(getFileFromArgs(process.argv));
   if (!image) {
-    console.error(getUsage());
+    console.error(process.argv, getUsage());
     return;
   }
 
