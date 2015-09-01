@@ -107,10 +107,11 @@ var chunkReaderCallback = function(err: ?Error, buffer: ?Buffer) {
 var downloadImage = function(args: Object): void {
   console.log('Downloading image.');
   var url = args.imageUrl;
-  console.log('Downloading image ' + url);
+  var smallUrl = url + ':small';
+  console.log('Downloading image ' + smallUrl);
 
   // $FlowIssue: https module is not defined.
-  var request = https.get(url, function(response) {
+  var request = https.get(smallUrl, function(response) {
     console.log('Download image status code: ' + response.statusCode);
     if (response.statusCode != 200) {
       console.error('Error downloading image.');
