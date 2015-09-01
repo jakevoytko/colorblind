@@ -197,7 +197,7 @@ var sendTweetReplyWithMedia = function(args) {
     console.error('Twitter screenname or id not populated in object.');
     return;
   }
-  var message = '@' + tweetScreenName + ' ' + baseMessage;
+  var message = 'Ahoy, @' + tweetScreenName + ' ' + baseMessage;
   var callback = function(res) {
     if (res.statusCode == 200) {
       console.log('The whole shebang has successfully happened!');
