@@ -62,12 +62,11 @@ exports.Xyy = Xyy;
 
 
 /** 
- * The white point in the xyY color space. Y can be ignored here, since it's
- * only defined in terms of chromaticity. Calculated converting from RGB
- * white. Defined explicitly to avoid circular dependency in definitions.
+ * The D50 white point in the xyY color space. Y can be ignored here, since it's
+ * only useful in terms of chromaticity.
  */
-var XYY_WHITE_D65 = new Xyy(0.31273126898108394, 0.3290328736744088, 1);
-exports.XYY_WHITE_D65 = XYY_WHITE_D65;
+var XYY_WHITE_D50 = new Xyy(0.3457, 0.3585, 1);
+exports.XYY_WHITE_D50 = XYY_WHITE_D50;
 
 
 /**
@@ -88,16 +87,20 @@ var srgbToXyzGamma = function(intensity: number): number {
 
 
 /** 
- * Converts an RGB color into an equivalent color in the XYZ color space. 
+ * Converts an RGB color into an equivalent color in the XYZ color space. RGB
+ * uses D65 as white, and XYZ uses D50 as white, so it uses a Bradford chromatic
+ * adaptation matrix gotten from
+ * http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html.
  */
 var rgbToXyz = function(rgb: Rgb): Xyz {
   var r = srgbToXyzGamma(rgb.R / 255);
   var g = srgbToXyzGamma(rgb.G / 255);
   var b = srgbToXyzGamma(rgb.B / 255);
 
-  var X = r * 0.412453 + g * 0.357580 + b * 0.180423;
-  var Y = r * 0.212671 + g * 0.715160 + b * 0.072169;
-  var Z = r * 0.019334 + g * 0.119193 + b * 0.950227;
+  // The RGB-to-XYZ matrix with a Bradford-adapted D65->D50 adjustment.
+  var X = r * 0.4360747 + g * 0.3850649 + b * 0.1430804;
+  var Y = r * 0.2225045 + g * 0.7168786 + b * 0.0606169;
+  var Z = r * 0.0139322 + g * 0.0971045 + b * 0.7141733;
 
   return new Xyz(X, Y, Z);
 };
@@ -120,9 +123,10 @@ var xyzToSrgbGamma = function(intensity: number): number {
 
 /** Converts an XYZ color into an equivalent RGB color. */
 var xyzToRgb = function(xyz: Xyz): Rgb {
-  var newR = xyz.X * 3.240479 - xyz.Y * 1.537150 - xyz.Z * 0.498535;
-  var newG = xyz.X * -0.969256 + xyz.Y * 1.875992 + xyz.Z * 0.041556;
-  var newB = xyz.X * 0.055648 - xyz.Y * 0.204043 + xyz.Z * 1.057311;
+  // The XYZ-to-RGB matrix with a Bradford-adapted D65->D50 adjustment.
+  var newR = xyz.X * 3.1338561  + xyz.Y * -1.6168667 + xyz.Z * -0.4906146;
+  var newG = xyz.X * -0.9787684 + xyz.Y * 1.9161415  + xyz.Z * 0.0334540;
+  var newB = xyz.X * 0.0719453  + xyz.Y * -0.2289914 + xyz.Z * 1.4052427;
 
   var finalR = xyzToSrgbGamma(newR);
   var finalG = xyzToSrgbGamma(newG);
@@ -136,8 +140,8 @@ exports.xyzToRgb = xyzToRgb;
 /** Converts an XYZ color into an equivalent xyY color. */
 var xyzToXyy = function(xyz: Xyz): Xyy {
   var sum = xyz.X + xyz.Y + xyz.Z;
-  var x = XYY_WHITE_D65.x;
-  var y = XYY_WHITE_D65.y;
+  var x = XYY_WHITE_D50.x;
+  var y = XYY_WHITE_D50.y;
   if (sum != 0) {
     x = xyz.X / (xyz.X + xyz.Y + xyz.Z);
     y = xyz.Y / (xyz.X + xyz.Y + xyz.Z);

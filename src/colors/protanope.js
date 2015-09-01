@@ -49,7 +49,7 @@ var lagrangeInterpolateXyy = function(
  * be used to estimate all colors that protanopes can see.
  */
 var xyyVisionCurve = lagrangeInterpolateXyy(
-  colors.XYY_470, colors.XYY_575, colors.XYY_WHITE_D65);
+  colors.XYY_470, colors.XYY_575, colors.XYY_WHITE_D50);
 
 
 /** Asserts that all RGB channels are between 0 and 255. */
@@ -82,6 +82,16 @@ var xyyLine = function(xyy0: colors.Xyy, xyy1: colors.Xyy): Line {
   }
   var slope = (xyy1.y - xyy0.y) / (xyy1.x - xyy0.x);
   return new Line(slope, xyy0.y - slope * xyy0.x);
+};
+
+
+/**
+ * Protans have a dark response curve at the red end of the spectrum. Some reds
+ * are perceived at ~1/10 of the intensity that a normal observer would
+ * see. Adjust for this.
+ */
+var getProtanLuminance = function(xyz: colors.Xyz): number {
+  return -0.460 * xyz.X + 1.359 * xyz.Y + 0.101 * xyz.Z;
 };
 
 
@@ -143,7 +153,13 @@ var clamp = function(min: number, x: number, max: number): number {
  */
 var convertToProtanope = function(rgb: colors.Rgb): colors.Rgb {
   assertDisplayRgb(rgb);
-  var xyy = colors.xyzToXyy(colors.rgbToXyz(rgb));
+  var xyz = colors.rgbToXyz(rgb);
+  var xyy = colors.xyzToXyy(xyz);
+
+  // According to
+  // http://nvlpubs.nist.gov/nistpubs/jres/33/jresv33n6p407_A1b.pdf, luminance
+  // for protans must be adjusted because of the weak red frequency response.
+  var protanLuminance = getProtanLuminance(xyz);
 
   // First, find the confusion line. All colors along this line are perceived as
   // identical to protanopes.
@@ -151,7 +167,8 @@ var convertToProtanope = function(rgb: colors.Rgb): colors.Rgb {
 
   // The intersection between the vision curve and the confusion line is an
   // estimation of the color a protanope actually sees.
-  var xyyIntersection = intersectCurveLineXyy(xyyVisionCurve, confusionLine, xyy.Y);
+  var xyyIntersection = intersectCurveLineXyy(
+    xyyVisionCurve, confusionLine, protanLuminance);
 
   // The color may have fallen outside the sRGB colorspace. If so, move it back
   // along the confusion line. Note: This can still convert to colors outside of
