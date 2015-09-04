@@ -39,11 +39,16 @@ var runUserStream = function(): void {
       chunkReader.add(data);
     });
     response.on('end', function() {
-      console.error('Connection was ended by Twitter.');
+      console.error('Connection was ended by Twitter, restarting.');
+      setTimeout(runUserStream, 0);
     });
 
     if (response.statusCode != 200) {
-      console.error('Failed to connect to Twitter.');
+      console.error('Failed to connect to Twitter, sleeping 1 minute then dying.');
+      setTimeout(function() {
+        console.error('Dying.');
+        process.exit(1);
+      }, 1000 * 60);
     }
   });
 
